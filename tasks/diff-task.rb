@@ -2,6 +2,7 @@ require "pathname"
 require "tempfile"
 
 require_relative "translated_file"
+require_relative "pr_manager"
 require_relative "source_file"
 
 class DiffTask
@@ -25,6 +26,15 @@ class DiffTask
           next unless translated_file
 
           diff_content = diff(source_file, translated_file)
+          next unless diff_content
+
+          pr_manager = PrManager.new(translation_repository_path,
+                                     translated_file,
+                                     diff_content)
+          pr_manager.create_or_update
+          # TODO
+          # diff の内容でPRを作成したいです。
+          # すでに対象のファイルのPRが存在している場合は上書きしたいです。
         end
       end
     end
