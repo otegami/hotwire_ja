@@ -1,8 +1,9 @@
 require "pathname"
 require "tempfile"
 
-require_relative "translated_file"
 require_relative "source_file"
+require_relative "translated_file"
+require_relative "translation_pr_updater"
 
 class DiffTask
   include Rake::DSL
@@ -24,7 +25,14 @@ class DiffTask
           translated_file = source_file.find_translated_file(translated_files)
           next unless translated_file
 
-          diff_content = diff(source_file, translated_file)
+          source_latest_commit, diff_content = diff(source_file, translated_file)
+          next unless diff_content
+
+          translated_file.update_commit_hash(source_latest_commit)
+          updater = TranslationPrUpdater.new(translation_repository_path,
+                                           translated_file,
+                                           diff_content)
+          updater.execute
         end
       end
     end
@@ -35,6 +43,7 @@ class DiffTask
   def diff(source_file, translated_file)
     translated_commit = translated_file.front_matter[:commit]
     return unless translated_commit
+    return if translated_commit == source_latest_commit
 
     Tempfile.open("diff.txt") do |tempfile|
       sh("git",
@@ -44,7 +53,7 @@ class DiffTask
          "#{translated_commit}..#{source_latest_commit}",
          source_file.path.to_s,
          {out: tempfile})
-      tempfile.open.read
+      [source_latest_commit, tempfile.open.read]
     end
   end
 
