@@ -35,8 +35,8 @@ class TranslationPr
   DIFF_END = "<!-- Please write your description under here. -->"
 
   def repo
-    if ENV["TRANSLATED_OWNER"] && ENV["TRANSLATED_REPOSIOTRY"]
-      "#{ENV["TRANSLATED_OWNER"]}/#{ENV["TRANSLATED_REPOSIOTRY"]}"
+    if ENV["TRANSLATED_OWNER"] && ENV["TRANSLATED_REPOSITORY"]
+      "#{ENV["TRANSLATED_OWNER"]}/#{ENV["TRANSLATED_REPOSITORY"]}"
     else
       "everyleaf/hotwire_ja"
     end
@@ -57,7 +57,7 @@ class TranslationPr
   end
 
   def generate_description(diff)
-<<-TEMPLATE
+<<-DESCRIPTION
 #{DIFF_START}
 
 ~~~diff
@@ -66,7 +66,7 @@ class TranslationPr
 
 #{DIFF_END}
 
-TEMPLATE
+DESCRIPTION
   end
 
   def update_description(description, diff)
