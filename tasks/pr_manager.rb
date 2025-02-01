@@ -14,12 +14,27 @@ class PrManager
 
   def create_or_update
     Dir.chdir(repository_path) do
-      sh("git", "switch", "-c", branch)
-
-      if @existed
+      if existed
+        sh("git", "switch", branch)
+        update_pr
       else
+        sh("git", "switch", "-c", branch)
+        create_pr
       end
     end
+  end
+
+  def create_pr
+    updated_commit
+    sh("gh",
+       "--repo", "otegami/hotwire_ja"
+       "pr",
+       "create",
+       "--title", title,
+       "--body", description,
+       "--base", "main",
+       "--head", branch)
+    puts "Created a new PR for branch #{branch_name}."
   end
 
   def branch
@@ -28,11 +43,12 @@ class PrManager
   end
 
   def title
-    "#{}"
+    project, category, topic = translated_file.path.to_s.split("/").last(3)
+    "#{project} #{category} #{topic}: updated translation"
   end
 
   def description
-    if @existed
+    if existed
       updated_description
     else
       diff_template
@@ -56,9 +72,17 @@ class PrManager
     end
   end
 
+  def updated_commit
+    sh("git",
+       "commit",
+       "-m",
+       "updated translation",
+       "--allow-empty")
+  end
+
   private
 
-  attr_reader :translated_file, :repository_path
+  attr_reader :translated_file, :repository_path, :existed
 
   DIFF_START = "## Diff (Please don't change this section. It will be automatically updated.)"
   DIFF_END = "**Please write a description under here.**"

@@ -1,9 +1,9 @@
 require "pathname"
 require "tempfile"
 
-require_relative "translated_file"
 require_relative "pr_manager"
 require_relative "source_file"
+require_relative "translated_file"
 
 class DiffTask
   include Rake::DSL
