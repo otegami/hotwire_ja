@@ -34,6 +34,14 @@ class TranslationPr
   DIFF_START = "## Diff (Please don't change this section. It will be automatically updated.)"
   DIFF_END = "<!-- Please write your description under here. -->"
 
+  def repo
+    if ENV["TRANSLATED_OWNER"] && ENV["TRANSLATED_REPOSIOTRY"]
+      "#{ENV["TRANSLATED_OWNER"]}/#{ENV["TRANSLATED_REPOSIOTRY"]}"
+    else
+      "everyleaf/hotwire_ja"
+    end
+  end
+
   def branch
     "update-translation-" +
       "#{translated_file.project}-" +
@@ -79,12 +87,11 @@ TEMPLATE
   def find_existed_pr
     pr_raw_info = Tempfile.open("pr.json") do |pr|
       sh("gh",
-         "--repo", "otegami/hotwire_ja",
          "pr",
          "view",
          branch,
-         "--json",
-         "closed,title,body",
+         "--json", "closed,title,body",
+         "--repo", repo,
          {out: pr}
       )
       pr.open.read
@@ -113,10 +120,10 @@ TEMPLATE
     commit_latest_hash(source_latest_commit)
     sh("git", "push", "origin", branch)
     sh("gh",
-       "--repo", "otegami/hotwire_ja",
        "pr",
        "edit",
-       "--body", description)
+       "--body", description,
+       "--repo", repo)
   end
 
   def create_pr(branch, title, description, source_latest_commit)
@@ -124,12 +131,12 @@ TEMPLATE
     commit_latest_hash(source_latest_commit)
     sh("git", "push", "origin", branch)
     sh("gh",
-       "--repo", "otegami/hotwire_ja",
        "pr",
        "create",
        "--title", title,
        "--body", description,
        "--base", "auto-translations-update",
-       "--head", branch)
+       "--head", branch,
+       "--repo", repo)
   end
 end
