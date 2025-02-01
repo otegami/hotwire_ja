@@ -8,7 +8,6 @@ require_relative "translation_pr"
 class DiffTask
   include Rake::DSL
 
-  TURBO_SITE_REPOSITORY = "/home/otegami/work/ruby/hotwire_ja/turbo-site/"
   HANDBOOK_DIR = "handbook"
   REFERENCE_DIR = "reference"
   SOURCE_DIR = "_source"
@@ -79,7 +78,7 @@ class DiffTask
   end
 
   def source_repository_path
-    path = Pathname(TURBO_SITE_REPOSITORY)
+    path = Pathname(turbo_site_repository)
     path.expand_path
   end
 
@@ -93,5 +92,11 @@ class DiffTask
 
   def translation_repository_path
     Pathname(__dir__).parent.expand_path
+  end
+
+  def turbo_site_repository
+    repository = ENV["TURBO_SITE_REPOSITORY"]
+    raise "Specify TURBO_SITE_REPOSITORY environment variable" if repository.nil?
+    repository
   end
 end
