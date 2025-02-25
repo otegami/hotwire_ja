@@ -2,7 +2,7 @@
 title: Turbo アプリケーションの構築
 description: "Turboを使用してアプリケーションを構築する方法についてもっと学びましょう。"
 order: 7
-commit: "c2a19cd"
+commit: "8849e6b"
 ---
 
 # Turbo アプリケーションの構築
